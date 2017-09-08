@@ -1,0 +1,27 @@
+# -*- mode: ruby -*-
+
+nodes = {
+  "salt" => "192.168.10.10",
+  "chat" => "192.168.10.20"
+}
+
+Vagrant.configure("2") do |config|
+  config.vm.box = "debian/stretch64"
+  nodes.each do |name, ip|
+    config.vm.define name do |machine|
+      machine.vm.hostname = "%s" % name
+      machine.vm.network :private_network, ip: ip
+    end
+  end
+  config.vm.define :salt do |config|
+    config.vm.synced_folder "../../.", "/root/bootstrap"
+    config.vm.provision :shell, :path => "../../install/bootstrap.sh", :args => "'-NMF' stable 2016.11"
+    config.vm.provision :shell, :path => "../../install/configure.sh"
+  end
+  config.vm.define :chat do |config|
+    config.vm.network "forwarded_port", guest: 80, host: 80
+    config.vm.synced_folder "../../.", "/root/bootstrap"
+    config.vm.provision :shell, :path => "../../install/bootstrap.sh", :args => "'-F' stable 2016.11"
+    config.vm.provision :shell, :path => "../../install/configure.sh"
+  end
+end

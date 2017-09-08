@@ -1,0 +1,11 @@
+version: '3.1'
+
+services:
+
+  websocket_chat:
+    container_name: websocket_chat
+    image: olegbukatchuk/websocket_chat:1.0
+    restart: always
+    hostname: chat
+    ports:
+      - 80:8080
